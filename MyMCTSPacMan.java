@@ -11,7 +11,7 @@ import javax.swing.*;
 
 public class MyMCTSPacMan extends Controller<Constants.MOVE> {
 
-    private static final int minDistance = 10;
+    private static final int minDistance = 5;
 
 
 
@@ -26,18 +26,34 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
         // if(game.getShortestPathDistance(current,game.getGhostCurrentNodeIndex(ghost))<MIN_DISTANCE)
 
 
+int ghostHunting=15;
+        int[]P=game.getActivePowerPillsIndices();
+
+
         for (Constants.GHOST ghost : Constants.GHOST.values())
 
+            if(P.length==0 && game.getGhostEdibleTime(ghost)>0)
+            {ghostHunting=100;}
+        else
+            {ghostHunting=15;}
+
+
+
+
+
+
             //Strategu 1: run away from non edible ghosts
+        for (Constants.GHOST ghost : Constants.GHOST.values())
             if (game.getGhostEdibleTime(ghost) == 0 && game.getGhostLairTime(ghost)<=2) {
 
 
                 if (game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost)) < minDistance) {
                     //
-                    int[] PowerPills = game.getActivePowerPillsIndices();
+                    int PowerPills[]=game.getActivePowerPillsIndices();
+                    PowerPills = game.getActivePowerPillsIndices();
                     for (int i = 0; i < PowerPills.length; i++) {
 
-                        if (game.getShortestPathDistance(current, PowerPills[i]) >= 10) {
+                        if (game.getManhattanDistance(current, PowerPills[i]) >= 10) {
                             //System.out.println("Moving away");
                             return   game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(ghost), Constants.DM.PATH);
                         } else {
@@ -62,9 +78,10 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
 
         for (Constants.GHOST ghost : Constants.GHOST.values())
             if (game.getGhostEdibleTime(ghost) > 0) {
-                //int[] PowerPills = game.getActivePowerPillsIndices();
-                if (game.getManhattanDistance(current, game.getGhostCurrentNodeIndex(ghost)) < 10) {
 
+                // Strategy 3: Eat edible ghost if he is close to you.
+                if (game.getManhattanDistance(current, game.getGhostCurrentNodeIndex(ghost)) <= ghostHunting) {
+                        System.out.println("Hunting");
                     return game.getNextMoveTowardsTarget(current, game.getGhostCurrentNodeIndex(ghost), Constants.DM.PATH);
                 }int[] targetNodeIndices1 = game.getActivePillsIndices();
                 int[] allPills = game.getActivePillsIndices();
