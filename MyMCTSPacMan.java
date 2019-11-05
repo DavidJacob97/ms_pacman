@@ -29,7 +29,7 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
         for (Constants.GHOST ghost : Constants.GHOST.values())
 
             //Strategu 1: run away from non edible ghosts
-            if (game.getGhostEdibleTime(ghost) == 0 ) {
+            if (game.getGhostEdibleTime(ghost) == 0 && game.getGhostLairTime(ghost)<=2) {
 
 
                 if (game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost)) < minDistance) {
@@ -55,10 +55,8 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
 
 //System.out.println("Eating");
                  int[] allPills = game.getActivePillsIndices();
-                int[] targetNodeIndices=new int[allPills.length];
-                for(int i=0;i<allPills.length;i++)
-                    targetNodeIndices[i]=allPills[i];
-                return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, targetNodeIndices, Constants.DM.PATH), Constants.DM.PATH);
+
+                return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, allPills, Constants.DM.PATH), Constants.DM.PATH);
 
             }
 
@@ -68,14 +66,9 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
                 if (game.getManhattanDistance(current, game.getGhostCurrentNodeIndex(ghost)) < 10) {
 
                     return game.getNextMoveTowardsTarget(current, game.getGhostCurrentNodeIndex(ghost), Constants.DM.PATH);
-                }
-
-
+                }int[] targetNodeIndices1 = game.getActivePillsIndices();
                 int[] allPills = game.getActivePillsIndices();
-                int[] targetNodeIndices=new int[allPills.length];
-                for(int i=0;i<allPills.length;i++)
-                    targetNodeIndices[i]=allPills[i];
-                return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, targetNodeIndices, Constants.DM.PATH), Constants.DM.PATH);
+                return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, allPills, Constants.DM.PATH), Constants.DM.PATH);
                 // System.out.println(game.getShortestPathDistance(current, PowerPills[i]));
 
 
