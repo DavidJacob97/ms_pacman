@@ -7,12 +7,12 @@ import pacman.game.Game;
 
 
 import javax.swing.*;
+import java.util.Arrays;
 
 
 public class MyMCTSPacMan extends Controller<Constants.MOVE> {
 
-    private static final int minDistance = 8;
-
+    private static final int minDistance = 5;
 
 
     public Constants.MOVE getMove(Game game, long timeDue) {
@@ -24,39 +24,49 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
 
         //(game.getGhostEdibleTime(ghost)==0 && game.getGhostLairTime(ghost)==0)
         // if(game.getShortestPathDistance(current,game.getGhostCurrentNodeIndex(ghost))<MIN_DISTANCE)
-
-
-//int ghostHunting=17;
+        int[] p = game.getActivePillsIndices();
+        int PowerPills[] = game.getActivePowerPillsIndices();
+        int ghostHunting = 30;
         //int[]P=game.getActivePowerPillsIndices();
         //int Pill[]=game.getActivePowerPillsIndices();
-       // for (Constants.GHOST ghost : Constants.GHOST.values())
-
-          //  if( game.getGhostEdibleTime(ghost)>3 && P.length==0)
-          //  {ghostHunting=80;}
-       // else
-           // {ghostHunting=17;}
 
 
-
-
-
-
-            //Strategu 1: run away from non edible ghosts
         for (Constants.GHOST ghost : Constants.GHOST.values())
-            if (game.getGhostEdibleTime(ghost) == 0 && game.getGhostLairTime(ghost)<=2) {
+            if (game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost)) < minDistance && game.getGhostEdibleTime(ghost) == 0) {
+
+//System.out.println("Eating");
+                int[] allPills = game.getActivePillsIndices();
+                for (int i = 0; i < PowerPills.length; i++) {
+
+                    if (game.getShortestPathDistance(current, game.getPowerPillIndex(PowerPills[i])) <= 17 ) {
+                        System.out.println("Wait");
+                        return game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(), game.getPowerPillIndex(PowerPills[i]), Constants.DM.PATH);
+                    }
+                }
+                return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, allPills, Constants.DM.PATH), Constants.DM.PATH);
+
+            }
+
+
+
+
+
+        //Strategu 1: run away from non edible ghosts
+        for (Constants.GHOST ghost : Constants.GHOST.values())
+            if (game.getGhostEdibleTime(ghost) == 0 && game.getGhostLairTime(ghost) <= 1) {
 
 
                 if (game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost)) < minDistance) {
                     //
-                    int PowerPills[]=game.getActivePowerPillsIndices();
+                    PowerPills = game.getActivePowerPillsIndices();
 
                     for (int i = 0; i < PowerPills.length; i++) {
 
                         if (game.getShortestPathDistance(current, PowerPills[i]) >= 10) {
                             //System.out.println("Moving away");
-                            return   game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(ghost), Constants.DM.PATH);
+                            return game.getNextMoveAwayFromTarget(game.getPacmanCurrentNodeIndex(), game.getGhostCurrentNodeIndex(ghost), Constants.DM.PATH);
                         } else {
-                            return  game.getNextMoveTowardsTarget(current, PowerPills[i], Constants.DM.PATH);
+                            return game.getNextMoveTowardsTarget(current, PowerPills[i], Constants.DM.PATH);
                             //  System.out.println("getting power pill");
                         }
                     }
@@ -68,8 +78,8 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
         for (Constants.GHOST ghost : Constants.GHOST.values())
             if (game.getShortestPathDistance(current, game.getGhostCurrentNodeIndex(ghost)) > minDistance && game.getGhostEdibleTime(ghost) == 0) {
 
-//System.out.println("Eating");
-                 int[] allPills = game.getActivePillsIndices();
+System.out.println("Eating");
+                int [] allPills = game.getActivePillsIndices();
 
                 return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, allPills, Constants.DM.PATH), Constants.DM.PATH);
 
@@ -79,17 +89,19 @@ public class MyMCTSPacMan extends Controller<Constants.MOVE> {
             if (game.getGhostEdibleTime(ghost) > 0) {
 
                 // Strategy 3: Eat edible ghost if he is close to you.
-                if (game.getManhattanDistance(current, game.getGhostCurrentNodeIndex(ghost)) <= 15) {
-                       // System.out.println("Hunting");
+
+
+                if (game.getManhattanDistance(current, game.getGhostCurrentNodeIndex(ghost)) <= ghostHunting) {
+                    // System.out.println("Hunting");
                     return game.getNextMoveTowardsTarget(current, game.getGhostCurrentNodeIndex(ghost), Constants.DM.PATH);
-                }int[] targetNodeIndices1 = game.getActivePillsIndices();
-                int[] allPills = game.getActivePillsIndices();
+                }//
+               int[] allPills = game.getActivePillsIndices();
                 return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, allPills, Constants.DM.PATH), Constants.DM.PATH);
                 // System.out.println(game.getShortestPathDistance(current, PowerPills[i]));
 
-
-
             }
-        return null; }
+
+        return game.getNextMoveTowardsTarget(game.getPacmanCurrentNodeIndex(), game.getClosestNodeIndexFromNodeIndex(current, p, Constants.DM.PATH), Constants.DM.PATH);
+    }
 }
 
